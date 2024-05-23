@@ -2,6 +2,12 @@
 import Product from "@/components/Products/Product";
 import ProductSkeleton from "@/components/Products/ProductSkeleton";
 import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
@@ -19,6 +25,54 @@ const SORT_OPTIONS = [
   { name: "Price: Low to High", value: "price-asc" },
   { name: "Price: High to Low", value: "price-desc" },
 ] as const;
+
+const COLOR_FILTERS = {
+  id: "color",
+  name: "Color",
+  options: [
+    { value: "white", label: "White" },
+    { value: "beige", label: "Beige" },
+    { value: "blue", label: "Blue" },
+    { value: "green", label: "Green" },
+    { value: "purple", label: "Purple" },
+  ] as const,
+};
+
+const SIZE_FILTERS = {
+  id: "size",
+  name: "Size",
+  options: [
+    { value: "S", label: "S" },
+    { value: "M", label: "M" },
+    { value: "L", label: "L" },
+  ],
+} as const;
+
+const PRICE_FILTERS = {
+  id: "price",
+  name: "Price",
+  options: [
+    { value: [0, 100], label: "Any price" },
+    {
+      value: [0, 20],
+      label: "Under 20€",
+    },
+    {
+      value: [0, 40],
+      label: "Under 40€",
+    },
+    // custom option defined in JSX
+  ],
+} as const;
+
+const SUBCATEGORIES = [
+  { name: "T-Shirts", selected: true, href: "#" },
+  { name: "Hoodies", selected: false, href: "#" },
+  { name: "Sweatshirts", selected: false, href: "#" },
+  { name: "Accessories", selected: false, href: "#" },
+];
+
+const DEFAULT_CUSTOM_PRICE = [0, 100] as [number, number];
 
 export default function Home() {
   const [filter, setFilter] = useState({
@@ -40,8 +94,6 @@ export default function Home() {
       return data;
     },
   });
-
-  console.log(products);
 
   return (
     <main className=" mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -87,7 +139,49 @@ export default function Home() {
       <section className=" pb-24 pt-6">
         <div className=" grid grid-cols-1 gap-x-8 gap-y-10 lg:grid-cols-4">
           {/* filters */}
-          <div></div>
+          <div className=" hidden lg:block">
+            <ul className=" space-y-4 border-b border-gray-200 pb-6 text-sm font-medium text-gray-900">
+              {SUBCATEGORIES.map((category) => (
+                <li key={category.name}>
+                  <button
+                    className=" disabled:cursor-not-allowed disabled:opacity-60"
+                    disabled={!category.selected}
+                  >
+                    {category.name}
+                  </button>
+                </li>
+              ))}
+            </ul>
+
+            <Accordion type="multiple" className=" animate-none">
+              {/* color filter */}
+              <AccordionItem value="color">
+                <AccordionTrigger className=" py-3 text-sm text-gray-400 hover:text-gray-500">
+                  <span className=" font-medium text-gray-900">Color</span>
+                </AccordionTrigger>
+
+                <AccordionContent className=" pt-6 animate-none">
+                  <ul className=" space-y-4">
+                    {COLOR_FILTERS.options.map((option, optionIndex) => (
+                      <li key={option.value} className=" flex items-center">
+                        <input
+                          type="checkbox"
+                          id={`color-${optionIndex}`}
+                          className=" h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
+                        />
+                        <label
+                          htmlFor={`color-${optionIndex}`}
+                          className=" ml-3 text-sm text-gray-600"
+                        >
+                          {option.label}
+                        </label>
+                      </li>
+                    ))}
+                  </ul>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          </div>
 
           {/* propduct grid */}
           <ul className=" lg:col-span-3 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
