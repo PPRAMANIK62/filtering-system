@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Product as TProduct } from "@/db";
 import { cn } from "@/lib/utils";
+import { ProductState } from "@/lib/validators/productValidator";
 import { useQuery } from "@tanstack/react-query";
 import { QueryResult } from "@upstash/vector";
 import axios from "axios";
@@ -75,8 +76,11 @@ const SUBCATEGORIES = [
 const DEFAULT_CUSTOM_PRICE = [0, 100] as [number, number];
 
 export default function Home() {
-  const [filter, setFilter] = useState({
+  const [filter, setFilter] = useState<ProductState>({
     sort: "none",
+    color: ["beige", "blue", "green", "purple", "white"],
+    price: { isCustom: false, range: DEFAULT_CUSTOM_PRICE },
+    size: ["S", "M", "L"],
   });
 
   const { data: products } = useQuery({
@@ -94,6 +98,27 @@ export default function Home() {
       return data;
     },
   });
+
+  const applyArrayFilter = ({
+    category,
+    value,
+  }: {
+    category: keyof Omit<typeof filter, "price" | "sort">;
+    value: string;
+  }) => {
+    const isFilterApplied = filter[category].includes(value as never);
+
+    if (isFilterApplied)
+      setFilter((prev) => ({
+        ...prev,
+        [category]: prev[category].filter((v) => v !== value),
+      }));
+    else
+      setFilter((prev) => ({
+        ...prev,
+        [category]: [...prev[category], value],
+      }));
+  };
 
   return (
     <main className=" mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -168,9 +193,50 @@ export default function Home() {
                           type="checkbox"
                           id={`color-${optionIndex}`}
                           className=" h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
+                          onChange={() => {
+                            applyArrayFilter({
+                              category: "color",
+                              value: option.value,
+                            });
+                          }}
+                          checked={filter.color.includes(option.value)}
                         />
                         <label
                           htmlFor={`color-${optionIndex}`}
+                          className=" ml-3 text-sm text-gray-600"
+                        >
+                          {option.label}
+                        </label>
+                      </li>
+                    ))}
+                  </ul>
+                </AccordionContent>
+              </AccordionItem>
+
+              {/* size filters */}
+              <AccordionItem value="size">
+                <AccordionTrigger className=" py-3 text-sm text-gray-400 hover:text-gray-500">
+                  <span className=" font-medium text-gray-900">Size</span>
+                </AccordionTrigger>
+
+                <AccordionContent className=" pt-6 animate-none">
+                  <ul className=" space-y-4">
+                    {SIZE_FILTERS.options.map((option, optionIndex) => (
+                      <li key={option.value} className=" flex items-center">
+                        <input
+                          type="checkbox"
+                          id={`size-${optionIndex}`}
+                          className=" h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
+                          onChange={() => {
+                            applyArrayFilter({
+                              category: 'size',
+                              value: option.value,
+                            });
+                          }}
+                          checked={filter.size.includes(option.value)}
+                        />
+                        <label
+                          htmlFor={`size-${optionIndex}`}
                           className=" ml-3 text-sm text-gray-600"
                         >
                           {option.label}
