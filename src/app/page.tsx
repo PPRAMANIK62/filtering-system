@@ -1,5 +1,6 @@
 "use client";
 import Product from "@/components/Products/Product";
+import ProductSkeleton from "@/components/Products/ProductSkeleton";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -90,9 +91,13 @@ export default function Home() {
 
           {/* propduct grid */}
           <ul className=" lg:col-span-3 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
-            {products?.map((product, i) => (
-              <Product product={product.metadata!} key={i} />
-            ))}
+            {products
+              ? products?.map((product, i) => (
+                  <Product product={product.metadata!} key={i} />
+                ))
+              : new Array(12)
+                  .fill(null)
+                  .map((_, i) => <ProductSkeleton key={i} />)}
           </ul>
         </div>
       </section>
