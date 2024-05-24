@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Slider } from "@/components/ui/slider";
 import { Product as TProduct } from "@/db";
+import { COLOR_FILTERS, DEFAULT_CUSTOM_PRICE, PRICE_FILTERS, SIZE_FILTERS, SLIDER_STEP, SORT_OPTIONS, SUBCATEGORIES } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { ProductState } from "@/lib/validators/productValidator";
 import { useQuery } from "@tanstack/react-query";
@@ -21,62 +22,6 @@ import { QueryResult } from "@upstash/vector";
 import axios from "axios";
 import { ChevronDown, FilterIcon } from "lucide-react";
 import { useState } from "react";
-
-const SORT_OPTIONS = [
-  { name: "None", value: "none" },
-  { name: "Price: Low to High", value: "price-asc" },
-  { name: "Price: High to Low", value: "price-desc" },
-] as const;
-
-const COLOR_FILTERS = {
-  id: "color",
-  name: "Color",
-  options: [
-    { value: "white", label: "White" },
-    { value: "beige", label: "Beige" },
-    { value: "blue", label: "Blue" },
-    { value: "green", label: "Green" },
-    { value: "purple", label: "Purple" },
-  ] as const,
-};
-
-const SIZE_FILTERS = {
-  id: "size",
-  name: "Size",
-  options: [
-    { value: "S", label: "S" },
-    { value: "M", label: "M" },
-    { value: "L", label: "L" },
-  ],
-} as const;
-
-const PRICE_FILTERS = {
-  id: "price",
-  name: "Price",
-  options: [
-    { value: [0, 100], label: "Any price" },
-    {
-      value: [0, 20],
-      label: "Under 20€",
-    },
-    {
-      value: [0, 40],
-      label: "Under 40€",
-    },
-    // custom option defined in JSX
-  ],
-} as const;
-
-const SUBCATEGORIES = [
-  { name: "T-Shirts", selected: true, href: "#" },
-  { name: "Hoodies", selected: false, href: "#" },
-  { name: "Sweatshirts", selected: false, href: "#" },
-  { name: "Accessories", selected: false, href: "#" },
-];
-
-const DEFAULT_CUSTOM_PRICE = [0, 100] as [number, number];
-
-const SLIDER_STEP = 5;
 
 export default function Home() {
   const [filter, setFilter] = useState<ProductState>({
@@ -94,6 +39,9 @@ export default function Home() {
         {
           filter: {
             sort: filter.sort,
+            color: filter.color,
+            size: filter.size,
+            price: filter.price.range,
           },
         }
       );
