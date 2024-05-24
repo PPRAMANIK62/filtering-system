@@ -229,7 +229,7 @@ export default function Home() {
                           className=" h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
                           onChange={() => {
                             applyArrayFilter({
-                              category: 'size',
+                              category: "size",
                               value: option.value,
                             });
                           }}
@@ -237,6 +237,47 @@ export default function Home() {
                         />
                         <label
                           htmlFor={`size-${optionIndex}`}
+                          className=" ml-3 text-sm text-gray-600"
+                        >
+                          {option.label}
+                        </label>
+                      </li>
+                    ))}
+                  </ul>
+                </AccordionContent>
+              </AccordionItem>
+
+              {/* price filters */}
+              <AccordionItem value="price">
+                <AccordionTrigger className=" py-3 text-sm text-gray-400 hover:text-gray-500">
+                  <span className=" font-medium text-gray-900">Price</span>
+                </AccordionTrigger>
+
+                <AccordionContent className=" pt-6 animate-none">
+                  <ul className=" space-y-4">
+                    {PRICE_FILTERS.options.map((option, optionIndex) => (
+                      <li key={option.label} className=" flex items-center">
+                        <input
+                          type="radio"
+                          id={`price-${optionIndex}`}
+                          className=" h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
+                          onChange={() => {
+                            setFilter((prev) => ({
+                              ...prev,
+                              price: {
+                                isCustom: false,
+                                range: [...option.value],
+                              },
+                            }));
+                          }}
+                          checked={
+                            !filter.price.isCustom &&
+                            filter.price.range[0] === option.value[0] &&
+                            filter.price.range[1] === option.value[1]
+                          }
+                        />
+                        <label
+                          htmlFor={`price-${optionIndex}`}
                           className=" ml-3 text-sm text-gray-600"
                         >
                           {option.label}
