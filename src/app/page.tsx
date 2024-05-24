@@ -31,6 +31,7 @@ import axios from "axios";
 import { ChevronDown, FilterIcon } from "lucide-react";
 import { useCallback, useState } from "react";
 import debounce from "lodash.debounce";
+import EmptyState from "@/components/Products/EmptyState";
 
 export default function Home() {
   const [filter, setFilter] = useState<ProductState>({
@@ -334,13 +335,17 @@ export default function Home() {
 
           {/* propduct grid */}
           <ul className=" lg:col-span-3 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
-            {products
-              ? products?.map((product, i) => (
-                  <Product product={product.metadata!} key={i} />
-                ))
-              : new Array(12)
-                  .fill(null)
-                  .map((_, i) => <ProductSkeleton key={i} />)}
+            {products && products.length === 0 ? (
+              <EmptyState />
+            ) : products ? (
+              products?.map((product, i) => (
+                <Product product={product.metadata!} key={i} />
+              ))
+            ) : (
+              new Array(12)
+                .fill(null)
+                .map((_, i) => <ProductSkeleton key={i} />)
+            )}
           </ul>
         </div>
       </section>
