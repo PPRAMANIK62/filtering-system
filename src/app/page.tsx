@@ -14,14 +14,23 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Slider } from "@/components/ui/slider";
 import { Product as TProduct } from "@/db";
-import { COLOR_FILTERS, DEFAULT_CUSTOM_PRICE, PRICE_FILTERS, SIZE_FILTERS, SLIDER_STEP, SORT_OPTIONS, SUBCATEGORIES } from "@/lib/constants";
+import {
+  COLOR_FILTERS,
+  DEFAULT_CUSTOM_PRICE,
+  PRICE_FILTERS,
+  SIZE_FILTERS,
+  SLIDER_STEP,
+  SORT_OPTIONS,
+  SUBCATEGORIES,
+} from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { ProductState } from "@/lib/validators/productValidator";
 import { useQuery } from "@tanstack/react-query";
 import { QueryResult } from "@upstash/vector";
 import axios from "axios";
 import { ChevronDown, FilterIcon } from "lucide-react";
-import { useState } from "react";
+import { useCallback, useState } from "react";
+import debounce from "lodash.debounce";
 
 export default function Home() {
   const [filter, setFilter] = useState<ProductState>({
@@ -31,7 +40,7 @@ export default function Home() {
     size: ["S", "M", "L"],
   });
 
-  const { data: products } = useQuery({
+  const { data: products, refetch } = useQuery({
     queryKey: ["products"],
     queryFn: async () => {
       const { data } = await axios.post<QueryResult<TProduct>[]>(
@@ -49,6 +58,10 @@ export default function Home() {
       return data;
     },
   });
+
+  const onSubmit = () => refetch();
+  const debouncedSubmit = debounce(onSubmit, 500);
+  const _debouncedSubmit = useCallback(debouncedSubmit, []);
 
   const applyArrayFilter = ({
     category,
@@ -69,6 +82,8 @@ export default function Home() {
         ...prev,
         [category]: [...prev[category], value],
       }));
+
+    _debouncedSubmit();
   };
 
   const minPrice = Math.min(filter.price.range[0], filter.price.range[1]);
@@ -101,6 +116,8 @@ export default function Home() {
                       ...prev,
                       sort: option.value,
                     }));
+
+                    _debouncedSubmit();
                   }}
                 >
                   {option.name}
@@ -223,6 +240,8 @@ export default function Home() {
                                 range: [...option.value],
                               },
                             }));
+
+                            _debouncedSubmit();
                           }}
                           checked={
                             !filter.price.isCustom &&
@@ -252,6 +271,8 @@ export default function Home() {
                                 range: [0, 100],
                               },
                             }));
+
+                            _debouncedSubmit();
                           }}
                           checked={filter.price.isCustom}
                         />
@@ -290,7 +311,9 @@ export default function Home() {
                               isCustom: true,
                               range: [newMin, newMax],
                             },
-                          }))
+                          }));
+
+                          _debouncedSubmit();
                         }}
                         value={
                           filter.price.isCustom
